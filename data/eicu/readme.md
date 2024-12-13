@@ -1,1 +1,0 @@
-MIT eicu demo
