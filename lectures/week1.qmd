@@ -3,7 +3,7 @@ title: |
   | Seminar in Data Analysis with R
   | Week 1
 subtitle: |
-  | PH 700A, Spring 2024
+  | PH 700A
 author: "Rick Calvo"
 format:
   revealjs:
@@ -21,7 +21,7 @@ editor: visual
 -   Assignments
 -   Canvas
 -   Use of Generative AI
--   CSU Strike
+-   GitHub Education
 
 ## Welcome to R!
 
@@ -70,7 +70,7 @@ editor: visual
 
 ## Source
 
--   Holds your commands, comments, notes, and references to data elements
+-   Holds your commands, comments, notes, and references to data elements (your *code*/*syntax*)
 -   Also for viewing raw data in spreadsheet format
 
 ::: callout-note
@@ -116,6 +116,7 @@ We will use the following packages (and more) over the semester
     -   **/** for division
     -   **\*** for multiplication
     -   **\^** for exponentiation
+    -   **==** for equivalence
 
 ## Calculation Example
 
@@ -147,7 +148,7 @@ Make sure you obey the order of operations (PEMDAS)!
 
 -   Objects are anything in R that store values
 -   Shown in the Environment window
--   Objects can be created through assignment:
+-   Objects can be created through _assignment_:
     -   Assignment operators include \<- and =
         -   **\<-** is used for assignment
         -   **=** is used for arguments when you're creating or using a function
@@ -167,6 +168,22 @@ ending <- 9
 wording <- "Week 1"
 ```
 
+## Assignment vs. Equivalence
+
+Create an object called `a` that is equal to `1`
+
+`a = 1`
+
+Evaluate the veracity of equivalence
+
+`a == 1`
+
+[1] TRUE
+
+`a == 2`
+
+[1] FALSE
+
 ## Object Nomenclature
 
 -   Object names are case sensitive
@@ -177,7 +194,7 @@ wording <- "Week 1"
 
 `thisIsAnExampleOfCamelCase`
 
-`anotherVariable`
+`anotherVariableInCamelCase`
 
 ## Functions
 
@@ -203,12 +220,12 @@ Technically, arguments are the actual data that is passed into the function via 
 
 ## Calling Functions Example
 
-| Command               | Description                                                                          |
+| Command | Description |
 |------------------------------------|------------------------------------|
-| `?print`              | View the help file on the "print" function                                           |
-| `help(print)`         | Another way to view help for the "print" function                                    |
-| `wording <- "Week 1"` | Assigns the text string in the quotes to the object, "wording"                       |
-| `print(wording)`      | Issues the command to perform "print" using the "wording" as the compulsory argument |
+| `?print` | View the help file on the "print" function |
+| `help(print)` | Another way to view help for the "print" function |
+| `wording <- "Week 1"` | Assigns the text string in the quotes to the object, "wording" |
+| `print(wording)` | Issues the command to perform "print" using the "wording" as the compulsory argument |
 
 ```{r}
 ?print
@@ -432,9 +449,9 @@ Appending vectors combines two or more to lengthen the "list" of elements.
 
 `oceansideDogAges <- c(5, 5, 4, 3, 10, 6, 12, 15, 11)`
 
-`sanDiegoDogAges <- c(3, 5, 3, 2, 5, 9, 8, 10, 9, 1, 1, 3)` 
+`sanDiegoDogAges <- c(3, 5, 3, 2, 5, 9, 8, 10, 9, 1, 1, 3)`
 
-`elCajonDogAges <- c(1, 1, 3, 7, 9, 5, 3, 5, 9, 9, 1, 2)` 
+`elCajonDogAges <- c(1, 1, 3, 7, 9, 5, 3, 5, 9, 9, 1, 2)`
 
 `sdCountyDogAges <-(c(oceansideDogAges, sanDiegoDogAges, elCajonDogAges))` `length(sdCountyDogAges)`
 
