@@ -1,0 +1,50 @@
+---
+title: |
+  | "PH700A Week 2"
+subtitle: |
+  | Lab Assignment 2
+  | PH 700A, Spring 2025
+author: "FirstName LastName"
+format: pdf
+editor: source
+---
+
+## Starter Code to Load Packages and Data
+
+```{r}
+library(tidyverse)
+library(explore)
+
+data("mtcars")
+```
+
+## How many observations and variables exist in the `mtcars` dataframe?
+
+
+
+## Generate code to show the data types of the variables in the data frame?
+
+```{r}
+
+```
+
+## What is the most frequent "gear" in the data?
+
+```{r}
+
+```
+
+## What is the mean and median of `mpg`
+
+```{r}
+
+```
+
+## Graphically show the distributions of `mpg` and `hp` by `gear` status
+
+```{r}
+
+```
+
+## What insights do you observe regarding `mpg` and `hp`?
+

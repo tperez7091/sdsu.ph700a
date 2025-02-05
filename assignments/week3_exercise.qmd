@@ -1,0 +1,89 @@
+---
+title: |
+  | "PH700A Week 3"
+subtitle: |
+  | Lab Assignment 3
+  | PH 700A, Spring 2025
+author: "FirstName LastName"
+format: html
+editor: source
+---
+
+## Data Information
+
+This data originated from PhysioNet.
+
+Please view the documentation for the data contents at: <https://mimic.mit.edu/docs/iv/modules/ed/>
+
+## Data Import and Package Load
+```{r}
+#| title: data import
+#| include: false
+
+library(data.table)
+library(tidyverse)
+
+df.ed <- fread("https://github.com/core-academics/sdsu.ph700a/raw/refs/heads/main/data/mimic4ed/edstays.csv.gz")
+
+df.dx <- fread("https://github.com/core-academics/sdsu.ph700a/raw/refs/heads/main/data/mimic4ed/diagnosis.csv.gz")
+
+df.triage <- fread("https://github.com/core-academics/sdsu.ph700a/raw/refs/heads/main/data/mimic4ed/triage.csv.gz")
+```
+
+## Data Frame Contents
+```{r}
+glimpse(df.ed)
+
+glimpse(df.dx)
+
+glimpse(df.triage)
+```
+
+#  Objectives
+
+## Create a new column to capture the total time spent in the emergency department
+```{r}
+
+```
+
+## Encode gender and race as factors
+```{r}
+
+```
+
+## Identify records that were admitted with a fever of 100.4 or greater
+```{r}
+
+```
+
+## Reshape the diagnosis table to wide
+```{r}
+df.dxwide <- df.dx %>% 
+  pivot_wider(
+    id_cols = c(subject_id, stay_id),
+    names_from = seq_num,
+    values_from = c(icd_code, icd_version, icd_title)
+  )
+```
+
+## Identify only records where "INTRACEREBRAL HEMORRHAGE" was reported as the FIRST diagnosis
+```{r}
+
+```
+
+
+## Isolate only records with "INTRACEREBRAL HEMORRHAGE" in a new object
+```{r}
+
+```
+
+## Consolidate the new factors you created in a unified data frame
+```{r}
+
+```
+
+## Are there any patients without any diagnosis codes? If so, what is their subject_id?
+```{r}
+
+```
+
