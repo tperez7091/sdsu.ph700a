@@ -1,0 +1,18 @@
+# Code from 02/05/2025
+# Data Management
+
+# Addressing the question of establishing multiple conditions at once for the if_else statement
+
+df2 <- df %>%
+  mutate(bloodpress = if_else(sbp < 100 & survival == “Alive”, “hypotensive”, “okay”), missing = NULL)
+
+# This code will evaluate the condition of sbp < 100 AND survival == "Alive" simultaneously
+# If both are satisfied, it will assign "hypotensive" to `bloodpress`
+# If either one is not satisfied, it will assign "okay" to `bloodpress`
+
+df2 <- df %>%
+  mutate(bloodpress = if_else(sbp < 100 | survival == “Alive”, “hypotensive”, “okay”), missing = NULL)
+
+# This code uses the same conditions but with an OR operator |
+# If sbp < 100 or survival == "Alive", then `bloodpress` will be assigned "hypotensive"
+# If both conditions are not satisfied, then `bloodpress` will be assigned "okay"
