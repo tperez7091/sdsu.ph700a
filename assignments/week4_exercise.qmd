@@ -1,0 +1,108 @@
+---
+title: |
+  | "PH700A Week 4"
+subtitle: |
+  | Lab Assignment 4
+  | PH 700A, Spring 2025
+author: "FirstName LastName"
+format: html
+editor: source
+---
+
+## Data Information
+
+This data originated from PhysioNet.
+
+Please view the documentation for the data contents at: <https://mimic.mit.edu/docs/iv/modules/ed/>
+
+## Data Import and Package Load
+```{r}
+#| title: data import
+#| include: false
+
+library(data.table)
+library(tidyverse)
+
+df.ed <- fread("https://github.com/core-academics/sdsu.ph700a/raw/refs/heads/main/data/mimic4ed/edstays.csv.gz")
+
+df.dx <- fread("https://github.com/core-academics/sdsu.ph700a/raw/refs/heads/main/data/mimic4ed/diagnosis.csv.gz")
+
+df.triage <- fread("https://github.com/core-academics/sdsu.ph700a/raw/refs/heads/main/data/mimic4ed/triage.csv.gz")
+
+df.dxwide <- df.dx %>% 
+  pivot_wider(
+    id_cols = c(subject_id, stay_id),
+    names_from = seq_num,
+    values_from = c(icd_code, icd_version, icd_title)
+  )
+
+df.ed <- df.ed %>% mutate(hlos = outtime-intime)
+
+df.ed <- df.ed %>% mutate(across(c("gender", "race"), as.factor))
+
+df.triage <- df.triage %>% mutate(fever = if_else(temperature >= 100.4, 1, 0))
+```
+
+## Scenario
+
+We are tasked by the hospital to identify factors associated with long hospital length of stay (`df.ed$hlos`) among patients _admitted to the hospital_. Variables of interest include:
+
+-   Method of Arrival to the Hospital: `df.ed$arrival_transport == "ADMITTED"`
+
+-   Hypotensive Shock at Admission defined as a systolic blood pressure < 90 mmHg: `df.triage$sbp < 100`
+
+-   High reported pain score > 8: `df.triage$pain > 8`
+
+-   Tachycardia defined as heart rate > 100: `df.triage$heartrate > 100`
+
+-   Any acute or chronic kidney disease: `df.dx$icd_title ~ "kidney"`
+
+## Objective
+
+Evaluate the specified risk factors for their relationship with hospital length of stay.
+
+## Data Preparation
+
+### Isolate Hospital Admissions
+
+```{r}
+df <- subset(df.ed, disposition == "ADMITTED")
+```
+
+### Define Kidney Disease
+```{r}
+#| label: scanning icd_title for kidney
+
+df.dx$icd_title <- tolower(df.dx$icd_title)
+
+df.kidney <- df.dx %>%
+  mutate(kidneydisease = if_else(grepl("kidney", icd_title), 1, 0))
+
+df.kidney <- subset(df.kidney, kidneydisease == 1)
+
+df.kidney <- df.kidney %>% select(stay_id, kidneydisease)
+
+df <- left_join(df, df.kidney, by = "stay_id")
+
+df$kidneydisease <- replace_na(df$kidneydisease,0)
+
+# object cleanup
+rm(df.kidney)
+```
+
+Explanation:
+
+The `grepl` is an extension of the `grep` function and stands for, "global regular expression print" and is used for scanning text for character patterns.
+
+Here, `grepl` is used to look for the word, "kidney" in the variable `icd_title`. The `if_else` command assigns a 1 to the new variable `kidneydisease` if the pattern is found, and a 0 if it is not found.
+
+### Generate Measure for Hypotensive Shock
+
+### Generate Measure for High Pain Score
+
+### Generate Measure for Tachycardia
+
+### Combine variables of interest in a unified data frame
+
+### Evaluate if any of the above risk factors are associated with hospital length of stay
+
