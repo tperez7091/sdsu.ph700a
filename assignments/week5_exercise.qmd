@@ -1,0 +1,89 @@
+---
+title: |
+  | "PH700A Week 5"
+subtitle: |
+  | Lab Assignment 5
+  | PH 700A, Spring 2025
+author: "FirstName LastName"
+format: html
+editor: source
+---
+
+## Introduction
+
+For this exercise, you will have to combine multiple skills discussed over the semester. The goal is to explore the data and prepare them for analysis.
+
+Please take note that there are some variables that share a common name between two data frames.
+
+In `df.triage`, the columns contain only a singular measure used at the point of triage to determine the urgency of the patient.
+
+In contrast, `df.vitalsign` is a long-form data frame that is organized by `stay_id` and arranged by `charttime`. This is longitudinal data where measures are periodically collected over the hospital length of stay (`hlos`). As such, there are multiple measurements per patient for each variable that were collected at a specific time during hospitalization.
+
+Also please take note that `df.vitalsign` contains 206 of the 222 unique `stay_id` identifiers, though 23 of them are tagged with `hlosOutlier == 1`. The assignment pertains to these 206 individuals. These unique `stay_id` observations and their data from `df.ed` can be found in the data frame, `uniques` generated in the code below.
+
+This is a continuation of the in-class example on outlier identification. The goal of this assignment is to evaluate the validity of the outlier tag and determine if the patients with very high `hlos` should be excluded from study.
+
+## Data Import and Package Load
+```{r}
+#| title: data import
+#| include: false
+
+library(data.table)
+library(tidyverse)
+
+df.ed <- fread("https://github.com/core-academics/sdsu.ph700a/raw/refs/heads/main/data/mimic4ed/edstays.csv.gz")
+
+df.triage <- fread("https://github.com/core-academics/sdsu.ph700a/raw/refs/heads/main/data/mimic4ed/triage.csv.gz")
+
+df.vitalsign <- fread("https://github.com/core-academics/sdsu.ph700a/raw/refs/heads/main/data/mimic4ed/vitalsign.csv.gz")
+
+df.ed <- df.ed %>% mutate(hlos = outtime-intime)
+
+df.ed <- df.ed %>% mutate(across(c("gender", "race"), as.factor))
+
+df.triage <- df.triage %>% mutate(fever = if_else(temperature >= 100.4, 1, 0))
+
+df <- df.ed %>%
+      mutate(hlosOutlier = case_when(
+        hlos >=949 ~ 1,
+        hlos < 949 ~ 0,
+      .default = NA
+    )
+)
+df$hlosOutlier <- as.factor(df$hlosOutlier)
+
+uniques <- df.vitalsign %>%
+  distinct(stay_id)
+
+uniques <- left_join(uniques, df)
+```
+
+## Scenario
+
+There is still concern regarding the appropriateness of retaining the patients with very long length of stay (`hlos >= 949 hours`) for analysis.
+
+Please use the *df.vitalsign* data frame and summarise the following variables to evaluate if there are significant differences by the potential outlier status variable (hlosOutlier).
+
+-   temperature
+
+-   heartrate
+
+-   resprate
+
+-   o2sat
+
+-   sbp
+
+-   dbp
+
+-   pain
+
+You may use any form (i.e. min, max, mean, median, etc.) of the summarized variables that you deem appropriate.
+
+Please answer the following questions:
+
+## Do any of the aforementioned variables differ by the hlosOutlier variable?
+
+## What form(s) of the variable(s) differ in the most compelling way?
+
+## Do you believe that the observations tagged by hlosOutlier == 1 should be removed?
