@@ -1,0 +1,96 @@
+---
+title: |
+  | "PH700A Week 6"
+subtitle: |
+  | Lab Assignment 6
+  | PH 700A, Spring 2025
+author: "FirstName LastName"
+format: html
+editor: source
+---
+
+## Introduction
+
+This exercise will have you address the variability in string values and determine if there is a bias regarding the missingness of variables.
+
+## Data Import and Package Load
+```{r}
+#| title: data import
+#| include: false
+
+library(data.table)
+library(tidyverse)
+
+df.ed <- fread("https://github.com/core-academics/sdsu.ph700a/raw/refs/heads/main/data/mimic4ed/edstays.csv.gz")
+
+df.triage <- fread("https://github.com/core-academics/sdsu.ph700a/raw/refs/heads/main/data/mimic4ed/triage.csv.gz")
+
+df.ed <- df.ed %>% mutate(hlos = outtime-intime)
+
+df.ed <- df.ed %>% mutate(across(c("gender", "race"), as.factor))
+
+df.triage <- df.triage %>% mutate(fever = if_else(temperature >= 100.4, 1, 0))
+
+df.triage <- df.triage %>%
+  mutate(weakness = if_else(
+                            grepl("[Ww]eakness", chiefcomplaint),
+                            1,
+                            0)
+        )
+df.triage <- df.triage %>%
+  mutate(chiefcomplaint = str_replace_all(chiefcomplaint, c("s/p" = "status post", "S/P" = "status post")))
+
+df <- left_join(df.ed, df.triage, by = "stay_id")
+  df$subject_id.y <- NULL
+  df <- df %>% rename(subject_id = subject_id.x)
+  
+rm(df.triage, df.ed)
+```
+
+## Scenario
+
+We are concerned that the missing values in our data are due to a specific clinical issue affecting the accurate collection of patient information. Certain categories of chief complaints that can affect the collection of data include:
+
+-   Vascular
+
+-   Cardiac
+
+-   Trauma
+
+-   Neurological
+
+*Some* regular expressions associated with these categories are shown below. Please note that this is not an exhaustive list, nor are the categories mutually exclusive.
+
+### Vascular
+
+"DVT", "PICC", "PE"
+
+### Cardiac
+
+"cardiac", "Cardiac", "arrhythmia", "Tachycardia", "Abnormal EKG", "Atrial", "Palpitations"
+
+### Trauma
+
+"Fall", "SAH", "MVC", "Assault", "CAR", "Head injury", "SDH", "T-SPINE FX", "HEAD BLEED", "ICH", "TRAUMA"
+
+### Neurological
+
+"CVA", "Altered mental", "Confusion", "Psych", "SEIZURE"
+
+## Objective
+
+Please formulate four new variables that capture relevant chief complaints for each of the aforementioned categories of "vascular", "cardiac", "trauma" and "neurological" conditions. Please evaluate and determine if any of these categories of chief complaints can be tied to a pattern in missing values across the triage factors of `temperature`, `heartrate`, `resprate`, `o2sat`, `sbp`, `dbp`, `pain`, and `acuity`.
+
+## Regex Evaluation of Vascular Complaints
+
+
+## Regex Evaluation of Cardiac Complaints
+
+
+## Regex Evaluation of Trauma Complaints
+
+
+## Regex Evaluation of Neurological Complaints
+
+
+## Missing Data Assessment
