@@ -1,0 +1,148 @@
+---
+  title: |
+  | "PH700A Week 6"
+subtitle: |
+  | Lab Assignment 6
+| PH 700A, Spring 2025
+author: Theresa Perez
+format: html
+editor: source
+---
+  
+  ## Introduction
+  
+  This exercise will have you address the variability in string values and determine if there is a bias regarding the missingness of variables.
+
+## Data Import and Package Load
+```{r}
+#| title: data import
+#| include: false
+
+library(data.table)
+library(tidyverse)
+
+df.ed <- fread("https://github.com/core-academics/sdsu.ph700a/raw/refs/heads/main/data/mimic4ed/edstays.csv.gz")
+
+df.triage <- fread("https://github.com/core-academics/sdsu.ph700a/raw/refs/heads/main/data/mimic4ed/triage.csv.gz")
+
+df.ed <- df.ed %>% mutate(hlos = outtime-intime)
+
+df.ed <- df.ed %>% mutate(across(c("gender", "race"), as.factor))
+
+df.triage <- df.triage %>% mutate(fever = if_else(temperature >= 100.4, 1, 0))
+
+df.triage <- df.triage %>%
+  mutate(weakness = if_else(
+    grepl("[Ww]eakness", chiefcomplaint),
+    1,
+    0)
+  )
+df.triage <- df.triage %>%
+  mutate(chiefcomplaint = str_replace_all(chiefcomplaint, c("s/p" = "status post", "S/P" = "status post")))
+
+df <- left_join(df.ed, df.triage, by = "stay_id")
+df$subject_id.y <- NULL
+df <- df %>% rename(subject_id = subject_id.x)
+
+
+rm(df.triage, df.ed)
+```
+
+## Scenario
+
+We are concerned that the missing values in our data are due to a specific clinical issue affecting the accurate collection of patient information. Certain categories of chief complaints that can affect the collection of data include:
+  
+  -   Vascular
+
+-   Cardiac
+
+-   Trauma
+
+-   Neurological
+
+*Some* regular expressions associated with these categories are shown below. Please note that this is not an exhaustive list, nor are the categories mutually exclusive.
+
+### Vascular
+
+"DVT", "PICC", "PE"
+
+### Cardiac
+
+"cardiac", "Cardiac", "arrhythmia", "Tachycardia", "Abnormal EKG", "Atrial", "Palpitations"
+
+### Trauma
+
+"Fall", "SAH", "MVC", "Assault", "CAR", "Head injury", "SDH", "T-SPINE FX", "HEAD BLEED", "ICH", "TRAUMA"
+
+### Neurological
+
+"CVA", "Altered mental", "Confusion", "Psych", "SEIZURE"
+
+## Objective
+
+Please formulate four new variables that capture relevant chief complaints for each of the aforementioned categories of "vascular", "cardiac", "trauma" and "neurological" conditions. Please evaluate and determine if any of these categories of chief complaints can be tied to a pattern in missing values across the triage factors of `temperature`, `heartrate`, `resprate`, `o2sat`, `sbp`, `dbp`, `pain`, and `acuity`.
+
+## Regex Evaluation of Vascular Complaints
+#you need mutation of "DVT", "PICC", "PE" that are associated with vasc complaints, no other variants in string
+df <- df %>%
++ mutate(vascular = if_else(str_detect(chiefcomplaint, "DVT|PICC|PE"), 1, 0))
+> 
+> table(df$vascular)
+
+>library(VIM)
+>
+## Regex Evaluation of Cardiac Complaints
+  
+>df <- df %>%
+  + mutate(cardiac = if_else(str_detect(chiefcomplaint, "cardiac|Cardiac|arrhythmia|Tachycardia|Abnormal EKG|Atrial|Palpitations"), 1, 0))
+
+table(df$cardiac)
+#this is the result of the table: 8 patients had the matching regex from above
+
+0   1 
+214   8 
+
+## Regex Evaluation of Trauma Complaints
+
+>df <- df %>%
+ + mutate(trauma = if_else(str_detect(chiefcomplaint, "Fall|SAH|MVC|Assault|CAR|Head injury|SDH|T-SPINE FX|HEAD BLEED|ICH|TRAUMA"), 1, 0))
+
+>table(df$trauma)
+#this is the result of the table: 8 patients had the matching regex from above
+0   1 
+214   8 
+
+## Regex Evaluation of Neurological Complaints
+> df <- df %>%
+  + mutate(neurological = if_else(str_detect(chiefcomplaint, "CVA|Altered mental|Confusion|Psych|SEIZURE"), 1, 0))
+  > table(df$neurological)
+#this is the result of the table: 13 patients had the matching regex from above
+0   1 
+209  13 
+
+## Missing Data Assessment
+>library(VIM) #download and install package
+aggr(df %>% select(temperature, heartrate, resprate, o2sat, sbp, dbp, pain, acuity), 
+       +numbers = TRUE, prop = c(TRUE, FALSE))      #result is missing data evaluation showing some variables do have missing values. do these missing values correlate with chief complaints. 
+> table(df$missing_data, df$vascular)
+    0   1
+0 183  16
+1  22   1 #shows 22 cases have missing data and no vascular complaints, meaning missing data probably related to alt events
+
+>table(df$missing_data, df$cardiac)
+    0   1
+0 193   6
+1  21   2   #shows no strong relation btw missing data and no cardiac events
+
+>table(df$missing_data, df$trauma)
+
+    0   1
+0 180  19
+1  14   9 #there are instances of missing data. possible pattern.
+
+
+> table(df$missing_data, df$neurological)
+
+    0   1
+0 189  10
+1  20   3 #do not appear to be correlated
